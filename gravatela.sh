@@ -8,8 +8,9 @@ fi
 TMP=/tmp
 OUT=$HOME/Desktop
 if [ $# = 0 ] && [ -f $TMP/$USER.gravatela.pid ]; then
-	echo "Finalizando a gravação"
-	kill -TERM `cat $TMP/$USER.gravatela.pid`;
+	PID=`cat $TMP/$USER.gravatela.pid`
+	echo "Finalizando a gravação (pid=$PID)"
+	kill -TERM $PID;
 	rm -rf cat $TMP/$USER.gravatela.pid
 elif [ $# = 0 ]; then
 	echo "Iniciando a gravação"
@@ -64,7 +65,8 @@ elif [ $# = 0 ]; then
 		else
 			# Aqui Grava com a tela e audio
 			echo "Gravando..."
-                        ffmpeg -y -loglevel error -f avfoundation -framerate 30 -vsync 1 -pix_fmt nv12  -i "$SCREENDEVICEINDEX:0" -async 44100  -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &	
+			# Usar -vsync 1 faz com que o ffmpeg trave quando grava na saída HDMI
+                        ffmpeg -y -loglevel error -f avfoundation -framerate 30 -pix_fmt nv12  -i "$SCREENDEVICEINDEX:0" -async 88200  -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &	
 		fi
 	fi
 	echo $! > $TMP/$USER.gravatela.pid
