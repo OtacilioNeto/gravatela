@@ -79,10 +79,34 @@ elif [ $# = 1 ]; then
 	unlink $OUT/$USER.CameraAudio.mkv
         touch $TMP/$USER.CameraAudio.mkv
         ln -s $TMP/$USER.CameraAudio.mkv $OUT/$USER.CameraAudio.mkv
-	if [ -f $TMP/$USER.gravatela.pid  ]; then
-		ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -vsync 1 -vcodec h264 -f v4l2 -i $1 -c:v copy /home/ota/Desktop/$USER.CameraAudio.mkv &
+	if [ $GRAB = "x11grab" ]; then
+		if [ -f $TMP/$USER.gravatela.pid  ]; then	
+			# Se já está gravando a tela, grave a câmera sem áudio porque o processo que está gravando a tela já está lendo do microfone
+			ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -vsync 1 -vcodec h264 -f v4l2 -i $1 -c:v copy /home/ota/Desktop/$USER.CameraAudio.mkv &
+		else
+			# Não está gravando a tela, então leia do microfone
+			ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -vsync 1 -vcodec h264 -f v4l2 -i $1 -f alsa -ar 44100 -ac 2 -async 44100 -i hw:0 -c:v copy /home/ota/Desktop/$USER.CameraAudio.mkv &
+		fi
 	else
-		ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -vsync 1 -vcodec h264 -f v4l2 -i $1 -f alsa -ar 44100 -ac 2 -async 44100 -i hw:0 -c:v copy /home/ota/Desktop/$USER.CameraAudio.mkv &
+		# Aqui eh para o caso de estar usando o OS X
+		DEVICE=`ffmpeg -f avfoundation -list_devices true -i "" 2>&1 | grep "HD Pro Webcam C920" | awk '{print $7 $8 $9}' | head -n 1`
+		if [ $DEVICE = "HDProWebcam" ]; then
+			SCREENDEVICEINDEX=`ffmpeg -f avfoundation -list_devices true -i "" 2>&1 | grep "HD Pro Webcam C920" | awk '{print $6}' | awk -F "[" '{print $2}' | awk -F "]" '{print $1}' | head -n 1`
+			echo "Gravando do dispositivo $SCREENDEVICEINDEX"
+			if [ -f $TMP/$USER.gravatela.pid  ]; then
+				echo "Opção não implementada"
+				exit 1
+                        	# Se já está gravando a tela, grave a câmera sem áudio porque o processo que está gravando a tela já está lendo do microfone
+                        	ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -vsync 1 -vcodec h264 -f v4l2 -i $1 -c:v copy /home/ota/Desktop/$USER.CameraAudio.mkv &
+                	else
+				echo "Não está funcionando a gravação direto da câmera do MAC"
+				exit 1
+                        	# Não está gravando a tela, então leia da camera
+                        	ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -vsync 1 -vcodec h264 -f avfoundation -pix_fmt nv12 -i "$SCREENDEVICEINDEX:1" -async 88200  -c:v copy /Users/otacilio/Desktop/$USER.CameraAudio.mkv &
+                	fi
+		else
+			echo "Precisa adicionar o código para gravar da câmera do MAC"
+		fi
+		
 	fi
-	echo $! > $TMP/$USER.gravacamera.pid
 fi
