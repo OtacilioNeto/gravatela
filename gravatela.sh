@@ -48,6 +48,7 @@ elif [ $# = 0 ]; then
 	if [ -f $TMP/$USER.gravacamera.pid  ]; then
 		if [ $GRAB = "x11grab" ]; then
 			if [ $OFFSET != 0 ]; then
+                            # Aqui também precisa calcular as dimensões da tela a ser gravada
                         	ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -f x11grab -i :0.0+$OFFSET,0 -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
                 	else
                         	ffmpeg -y -loglevel error -video_size `xdpyinfo | grep 'dimensions:'| awk '{print $2}'` -framerate 30 -f x11grab -i :0.0+$OFFSET,0 -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
