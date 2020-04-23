@@ -49,9 +49,9 @@ elif [ $# = 0 ]; then
 		if [ $GRAB = "x11grab" ]; then
 			if [ $OFFSET != 0 ]; then
                             # Aqui também precisa calcular as dimensões da tela a ser gravada
-                        	ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -f x11grab -i :0.0+$OFFSET,0 -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
+                        	ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -f x11grab -i :$DISPLAY+$OFFSET,0 -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
                 	else
-                        	ffmpeg -y -loglevel error -video_size `xdpyinfo | grep 'dimensions:'| awk '{print $2}'` -framerate 30 -f x11grab -i :0.0+$OFFSET,0 -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
+                        	ffmpeg -y -loglevel error -video_size `xdpyinfo | grep 'dimensions:'| awk '{print $2}'` -framerate 30 -f x11grab -i :$DISPLAY+$OFFSET,0 -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
                 	fi
 		else
 			ffmpeg -y -loglevel error -f avfoundation -framerate 30 -pix_fmt nv12 -i "$SCREENDEVICEINDEX:" -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
@@ -59,9 +59,9 @@ elif [ $# = 0 ]; then
 	else
 		if [ $GRAB = "x11grab" ]; then
 			if [ $OFFSET != 0 ]; then
-				ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -f x11grab -i :0.0+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
+				ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -f x11grab -i :$DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
 			else
-				ffmpeg -y -loglevel error -video_size `xdpyinfo | grep 'dimensions:'| awk '{print $2}'` -framerate 30 -f x11grab -i :0.0+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
+				ffmpeg -y -loglevel error -video_size `xdpyinfo | grep 'dimensions:'| awk '{print $2}'` -framerate 30 -f x11grab -i :$DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
 			fi
 		else
 			# Aqui Grava com a tela e audio
