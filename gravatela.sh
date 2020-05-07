@@ -42,7 +42,9 @@ elif [ $# = 0 ]; then
 		fi
 		echo "Usando dispositivo $SCREENDEVICEINDEX"
 	fi
-	unlink $OUT/$USER.VideoAudio.mkv
+	if [ -f $OUT/$USER.VideoAudio.mkv ]; then
+		unlink $OUT/$USER.VideoAudio.mkv
+	fi
 	touch $TMP/$USER.VideoAudio.mkv
 	ln -s $TMP/$USER.VideoAudio.mkv $OUT/$USER.VideoAudio.mkv
 	if [ -f $TMP/$USER.gravacamera.pid  ]; then
@@ -77,7 +79,9 @@ elif [ $# = 1 ] && [ -f $TMP/$USER.gravacamera.pid ]; then
 elif [ $# = 1 ]; then
 	#Vamos gravar da camera
 	# So tem o código compatível com Linux e FreeBSD. Falta o do OSX
-	unlink $OUT/$USER.CameraAudio.mkv
+	if [ -f $OUT/$USER.CameraAudio.mkv ]; then
+		unlink $OUT/$USER.CameraAudio.mkv
+	fi
         touch $TMP/$USER.CameraAudio.mkv
         ln -s $TMP/$USER.CameraAudio.mkv $OUT/$USER.CameraAudio.mkv
 	if [ $GRAB = "x11grab" ]; then
