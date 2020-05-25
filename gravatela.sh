@@ -9,7 +9,7 @@ TMP=/tmp
 OUT=$HOME/Desktop
 if [ $# = 0 ] && [ -f $TMP/$USER.gravatela.pid ]; then
 	PID=`cat $TMP/$USER.gravatela.pid`
-	echo "Finalizando a gravação (pid=$PID)"
+	echo "Finalizando a gravação da tela (pid=$PID)"
 	kill -TERM $PID;
 	rm -rf cat $TMP/$USER.gravatela.pid
 elif [ $# = 0 ]; then
@@ -75,7 +75,7 @@ elif [ $# = 0 ]; then
 	echo $! > $TMP/$USER.gravatela.pid
 elif [ $# = 1 ] && [ -f $TMP/$USER.gravacamera.pid ]; then
 	PID=`cat $TMP/$USER.gravacamera.pid`
-	echo "Finalizando a gravacamera (pid=$PID)"
+	echo "Finalizando a gravação da câmera (pid=$PID)"
 	kill -TERM $PID;
 	rm -rf cat $TMP/$USER.gravacamera.pid
 elif [ $# = 1 ]; then
