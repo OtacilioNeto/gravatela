@@ -67,12 +67,12 @@ elif [ $# = 0 ]; then
 			fi
 		else
 			# Aqui Grava com a tela e audio
-			echo "Gravando..."
 			# Usar -vsync 1 faz com que o ffmpeg trave quando grava na saída HDMI
             ffmpeg -y -loglevel error -f avfoundation -framerate 30 -pix_fmt nv12  -i "$SCREENDEVICEINDEX:0" -async 88200  -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &	
 		fi
 	fi
 	echo $! > $TMP/$USER.gravatela.pid
+	echo "Gravando..."
 elif [ $# = 1 ] && [ -f $TMP/$USER.gravacamera.pid ]; then
 	PID=`cat $TMP/$USER.gravacamera.pid`
 	echo "Finalizando a gravação da câmera (pid=$PID)"
