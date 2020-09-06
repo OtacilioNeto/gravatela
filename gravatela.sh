@@ -61,9 +61,9 @@ elif [ $# = 0 ]; then
 	else
 		if [ $GRAB = "x11grab" ]; then
 			if [ $OFFSET != 0 ]; then
-				ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -f x11grab -i $DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
+				ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -vaapi_device /dev/dri/renderD128 -f x11grab -i $DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 -vf 'format=nv12,hwupload' -c:v h264_vaapi  $TMP/$USER.VideoAudio.mkv &
 			else
-				ffmpeg -y -loglevel error -video_size `xdpyinfo | grep 'dimensions:'| awk '{print $2}'` -framerate 30 -f x11grab -i $DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
+				ffmpeg -y -loglevel error -video_size `xdpyinfo | grep 'dimensions:'| awk '{print $2}'` -framerate 30 -vaapi_device /dev/dri/renderD128 -f x11grab -i $DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 -vf 'format=nv12,hwupload' -c:v h264_vaapi -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mkv &
 			fi
 		else
 			# Aqui Grava com a tela e audio
