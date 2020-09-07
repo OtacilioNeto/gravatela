@@ -3,6 +3,13 @@ if [ `uname` = "Darwin" ]; then
 	GRAB="avfoundation"
 else
 	GRAB="x11grab"
+	if [ -e /dev/dri/renderD128 ]; then
+		VAAPI_DEVICE="-vaapi_device /dev/dri/renderD128"
+		ENCODER="-vf format=nv12,hwupload -c:v h264_vaapi -qp 18"
+	else
+		VAAPI_DEVICE=""
+		ENCODER="-c:v libx264 -preset ultrafast"
+	fi
 fi
 
 TMP=/tmp
@@ -13,6 +20,11 @@ if [ $# = 0 ] && [ -f $TMP/$USER.gravatela.pid ]; then
 	kill -TERM $PID;
 	rm -rf cat $TMP/$USER.gravatela.pid
 elif [ $# = 0 ]; then
+	if [ "$VAAPI_DEVICE" = "" ]; then
+		echo "Codificando via libx264"
+	else
+		echo "Codificando via vaapi"
+	fi
 	echo "Iniciando a gravação"
 	# Aqui descobre a resolução
 	if [ $GRAB = "x11grab" ]; then
@@ -51,9 +63,9 @@ elif [ $# = 0 ]; then
 		if [ $GRAB = "x11grab" ]; then
 			if [ $OFFSET != 0 ]; then
             	# Aqui também precisa calcular as dimensões da tela a ser gravada
-                ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -vaapi_device /dev/dri/renderD128 -f x11grab -i $DISPLAY+$OFFSET,0 -vf 'format=nv12,hwupload' -c:v h264_vaapi -qp 18 -crf 0 $TMP/$USER.VideoAudio.mp4 &
+                ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 $VAAPI_DEVICE -f x11grab -i $DISPLAY+$OFFSET,0 $ENCODER -crf 0 $TMP/$USER.VideoAudio.mp4 &
             else
-                ffmpeg -y -loglevel error -video_size `xdpyinfo | grep 'dimensions:'| awk '{print $2}'` -framerate 30 -vaapi_device /dev/dri/renderD128 -f x11grab -i $DISPLAY+$OFFSET,0 -vf 'format=nv12,hwupload' -c:v h264_vaapi -qp 18 -crf 0 $TMP/$USER.VideoAudio.mp4 &
+                ffmpeg -y -loglevel error -video_size `xdpyinfo | grep 'dimensions:'| awk '{print $2}'` -framerate 30 $VAAPI_DEVICE -f x11grab -i $DISPLAY+$OFFSET,0 $ENCODER -crf 0 $TMP/$USER.VideoAudio.mp4 &
             fi
 		else
 			ffmpeg -y -loglevel error -f avfoundation -framerate 30 -pix_fmt nv12 -i "$SCREENDEVICEINDEX:" -c:v libx264 -crf 0 -preset ultrafast $TMP/$USER.VideoAudio.mp4 &
@@ -61,9 +73,9 @@ elif [ $# = 0 ]; then
 	else
 		if [ $GRAB = "x11grab" ]; then
 			if [ $OFFSET != 0 ]; then
-				ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -vaapi_device /dev/dri/renderD128 -f x11grab -i $DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 -vf 'format=nv12,hwupload' -c:v h264_vaapi -qp 18 -crf 0 $TMP/$USER.VideoAudio.mp4 &
+				ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 $VAAPI_DEVICE -f x11grab -i $DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 $ENCODER -crf 0 $TMP/$USER.VideoAudio.mp4 &
 			else
-				ffmpeg -y -loglevel error -video_size `xdpyinfo | grep 'dimensions:'| awk '{print $2}'` -framerate 30 -vaapi_device /dev/dri/renderD128 -f x11grab -i $DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 -vf 'format=nv12,hwupload' -c:v h264_vaapi -qp 18 -crf 0 $TMP/$USER.VideoAudio.mp4 &
+				ffmpeg -y -loglevel error -video_size `xdpyinfo | grep 'dimensions:'| awk '{print $2}'` -framerate 30 $VAAPI_DEVICE -f x11grab -i $DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 $ENCODER $TMP/$USER.VideoAudio.mp4 &
 			fi
 		else
 			# Aqui Grava com a tela e audio
@@ -72,7 +84,6 @@ elif [ $# = 0 ]; then
 		fi
 	fi
 	echo $! > $TMP/$USER.gravatela.pid
-	echo "Gravando..."
 elif [ $# = 1 ] && [ -f $TMP/$USER.gravacamera.pid ]; then
 	PID=`cat $TMP/$USER.gravacamera.pid`
 	echo "Finalizando a gravação da câmera (pid=$PID)"
