@@ -1,4 +1,7 @@
 #!/bin/sh
+# AC eh o canal de audio. Você pode tentar mudar para vê se pega microfones diferentes
+# Aqui 0 eh o microfone do notebook e 1 eh o microfone da câmera externa
+AC="1"
 if [ `uname` = "Darwin" ]; then
 	GRAB="avfoundation"
 else
@@ -73,9 +76,9 @@ elif [ $# = 0 ]; then
 	else
 		if [ $GRAB = "x11grab" ]; then
 			if [ $OFFSET != 0 ]; then
-				ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 $VAAPI_DEVICE -f x11grab -i $DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 $ENCODER -crf 0 $TMP/$USER.VideoAudio.mkv &
+				ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 $VAAPI_DEVICE -f x11grab -i $DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:$AC $ENCODER -crf 0 $TMP/$USER.VideoAudio.mkv &
 			else
-				ffmpeg -y -loglevel error -video_size `xdpyinfo | grep 'dimensions:'| awk '{print $2}'` -framerate 30 $VAAPI_DEVICE -f x11grab -i $DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:0 $ENCODER $TMP/$USER.VideoAudio.mkv &
+				ffmpeg -y -loglevel error -video_size `xdpyinfo | grep 'dimensions:'| awk '{print $2}'` -framerate 30 $VAAPI_DEVICE -f x11grab -i $DISPLAY+$OFFSET,0 -f alsa -ar 44100 -ac 2 -async 1  -i hw:$AC $ENCODER $TMP/$USER.VideoAudio.mkv &
 			fi
 		else
 			# Aqui Grava com a tela e audio
@@ -103,7 +106,7 @@ elif [ $# = 1 ]; then
 			ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -vsync 1 -vcodec h264 -f v4l2 -i $1 -c:v copy /home/ota/Desktop/$USER.CameraAudio.mkv &
 		else
 			# Não está gravando a tela, então leia do microfone
-			ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -vsync 1 -vcodec h264 -f v4l2 -i $1 -f alsa -ar 44100 -ac 2 -async 44100 -i hw:0 -c:v copy /home/ota/Desktop/$USER.CameraAudio.mkv &
+			ffmpeg -y -loglevel error -video_size 1920x1080 -framerate 30 -vsync 1 -vcodec h264 -f v4l2 -i $1 -f alsa -ar 44100 -ac 2 -async 44100 -i hw:$AC -c:v copy /home/ota/Desktop/$USER.CameraAudio.mkv &
 		fi
 	else
 		# Aqui eh para o caso de estar usando o OS X
