@@ -2,6 +2,7 @@
 # AC eh o canal de audio. Você pode tentar mudar para vê se pega microfones diferentes
 # Aqui 0 eh o microfone do notebook e 1 eh o microfone da câmera externa
 AC="1"
+echo "Usando o dispositivo de áudio $AC"
 if [ `uname` = "Darwin" ]; then
 	GRAB="avfoundation"
 else
